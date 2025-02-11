@@ -1,0 +1,6 @@
+com\automation\Main.class
+com\automation\jmstest\JmsTestApplication.class
+com\automation\jmstest\model\CustomMessage.class
+com\automation\jmstest\service\MessageSender.class
+com\automation\jmstest\config\JmsConfig.class
+com\automation\jmstest\service\MessageListener.class
