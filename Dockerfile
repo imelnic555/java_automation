@@ -6,7 +6,8 @@ FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY . /app
 # Install Maven if required
-RUN apk update && apk add -y maven
+RUN apk update && apk add --no-cache maven
+
 
 # Build the application
 RUN mvn clean install -DskipTests
