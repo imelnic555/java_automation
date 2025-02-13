@@ -1,7 +1,7 @@
-# Use Maven with OpenJDK 17 as the base image
-FROM maven:3.8.7-eclipse-temurin-17
+# Use a valid Maven image with JDK 17
+FROM maven:3.8.7-eclipse-temurin-17 AS builder
 
-# Set working directory inside container
+# Set working directory inside the container
 WORKDIR /app
 
 # Copy Maven dependencies (for caching)
@@ -14,8 +14,8 @@ COPY . .
 # Build the project
 RUN mvn clean package -DskipTests
 
-# Use a lightweight JDK image to run tests
-FROM openjdk:17-jdk-slim
+# Use a lightweight Java runtime for execution
+FROM eclipse-temurin:17-jdk-slim AS runtime
 WORKDIR /app
 
 # Copy built files from the previous stage
@@ -24,4 +24,17 @@ COPY --from=builder /app/target/*.jar app.jar
 # Install Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y wget unzip curl \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update && apt-get install -y google-chrome-stable \
+    && wget https://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm chromedriver_linux64.zip
+
+# Set ChromeDriver Path
+ENV PATH="/usr/local/bin:${PATH}"
+ENV webdriver.chrome.driver="/usr/local/bin/chromedriver"
+
+# Run tests
+CMD ["mvn", "test"]
