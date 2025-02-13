@@ -53,12 +53,12 @@ jobs:
       - name: Debug Playwright Report
         run: ls -la test-results/playwright-report || echo "No Playwright report found"
 
-      - name: Upload Playwright Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-report
-          path: playwright-report/
-          if-no-files-found: ignore  # ✅ Ignore missing files instead of showing warnings
+      # - name: Upload Playwright Test Results
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: playwright-html-report
+      #     path: playwright-report/
+      #     if-no-files-found: ignore  # ✅ Ignore missing files instead of showing warnings
 
       - name: Deploy Allure Report to GitHub Pages
         if: success()
@@ -70,12 +70,12 @@ jobs:
           destination_dir: allure-report
           keep_files: false
           
-      - name: Deploy Playwright HTML Report to GitHub Pages
-        if: success()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          personal_token: ${{ secrets.GH_PAT }}
-          publish_branch: gh-pages
-          publish_dir: playwright-report/
-          destination_dir: playwright-report
-          keep_files: false
+      # - name: Deploy Playwright HTML Report to GitHub Pages
+      #   if: success()
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     personal_token: ${{ secrets.GH_PAT }}
+      #     publish_branch: gh-pages
+      #     publish_dir: playwright-report/
+      #     destination_dir: playwright-report
+      #     keep_files: false
