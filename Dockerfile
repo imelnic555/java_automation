@@ -1,5 +1,5 @@
 # Stage 1: Build the Java Project
-FROM eclipse-temurin:21
+FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run Tests in a Lightweight JDK Container
-FROM eclipse-temurin:21
+FROM eclipse-temurin:17-jdk AS runtime
 
 WORKDIR /app
 
@@ -23,4 +23,18 @@ COPY --from=builder /app/target/*.jar app.jar
 
 # Install Chrome and ChromeDriver
 RUN apt-get update && apt-get install -y wget unzip curl \
-    && wget -q 
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update && apt-get install -y google-chrome-stable \
+    && wget https://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm chromedriver_linux64.zip
+
+# Set ChromeDriver Path
+ENV PATH="/usr/local/bin:${PATH}"
+ENV webdriver.chrome.driver="/usr/local/bin/chromedriver"
+
+# Run tests when the container starts
+CMD ["mvn", "test"]
