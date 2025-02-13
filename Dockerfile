@@ -1,26 +1,23 @@
-# Stage 1: Build the Java Project with Maven
-FROM maven:3.8.7-eclipse-temurin-17-alpine AS builder
+# Use a base image with JDK
+# Use a base image with JDK
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
+
+# Set the working directory
+WORKDIR /app
+COPY . /app
+# Install Maven if required
+# RUN apt-get update && apt-get install -y maven
+
+# Build the application
+RUN mvn clean install -DskipTests
+
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Copy Maven dependencies for caching
-COPY pom.xml .
-RUN mvn dependency:go-offline
+COPY --from=build /app/target/*.jar app.jar
 
-# Copy project files
-COPY . .
-
-# Build the project and check if the target/ folder is created
-RUN mvn clean package -DskipTests || (echo "Maven Build Failed!" && exit 1)
-RUN ls -l target/ || (echo "Target folder missing!" && exit 1)
-
-# Stage 2: Run Tests in a Lightweight Java Container
-FROM eclipse-temurin:17-jdk-alpine AS runtime
-
-WORKDIR /app
-
-# Copy built JAR file from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
+# CMD [ "java", "-jar", "app.jar" ]
 
 # Install Chrome and ChromeDriver in Alpine
 RUN apk update && apk add --no-cache \
