@@ -14,7 +14,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run Tests in a Lightweight JDK Container
-FROM eclipse-temurin:17-jdk-slim AS runtime
+FROM eclipse-temurin:21
 
 WORKDIR /app
 
