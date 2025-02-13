@@ -1,5 +1,5 @@
 # Use Maven with OpenJDK 17 as the base image
-FROM maven:3.8.6-openjdk-17 AS builder
+FROM maven:3.8.7-eclipse-temurin-17
 
 # Set working directory inside container
 WORKDIR /app
