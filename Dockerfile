@@ -1,5 +1,5 @@
 # Stage 1: Build the Java Project
-FROM adoptopenjdk:17-jdk-slim
+FROM eclipse-temurin:21
 
 WORKDIR /app
 
