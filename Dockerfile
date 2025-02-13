@@ -1,5 +1,5 @@
 # Use a valid Maven image with JDK 17
-FROM maven:3.8.7-eclipse-temurin-17 AS builder
+FROM eclipse-temurin:17-jdk AS builder
 
 # Set working directory inside the container
 WORKDIR /app
