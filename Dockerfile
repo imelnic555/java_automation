@@ -1,5 +1,5 @@
 # Stage 1: Build the Java Project
-FROM maven:3.8.7-eclipse-temurin-17 AS builder
+FROM adoptopenjdk:17-jdk-slim
 
 WORKDIR /app
 
