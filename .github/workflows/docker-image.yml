@@ -1,11 +1,23 @@
 name: Run Selenium Cucumber Tests in Docker
 
 on:
+  workflow_dispatch:
+    inputs:
+      test_env:
+        description: 'Test Environment (e.g., staging, production)'
+        required: false
+        default: 'qa'
+      cucumber_tags:
+        description: 'Tags to Run'
+        required: false
+        default: '@login'
   push:
+    branches:
+      - java_selenium
+  pull_request:
     branches:
       - main
       - develop
-  pull_request:
 
 jobs:
   test:
