@@ -1,34 +1,40 @@
-name: Run Selenium Cucumber Tests in Docker
+# Use a valid Maven image with JDK 17
+FROM maven:3.8.7-eclipse-temurin-17 AS builder
 
-on:
-  workflow_dispatch:
-    inputs:
-      test_env:
-        description: 'Test Environment (e.g., staging, production)'
-        required: false
-        default: 'qa'
-      cucumber_tags:
-        description: 'Tags to Run'
-        required: false
-        default: '@login'
-  push:
-    branches:
-      - java_selenium
-  pull_request:
-    branches:
-      - main
-      - develop
+# Set working directory inside the container
+WORKDIR /app
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+# Copy Maven dependencies (for caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+# Copy the entire project
+COPY . .
 
-      - name: Build Docker Image
-        run: docker build -t selenium-tests .
+# Build the project
+RUN mvn clean package -DskipTests
 
-      - name: Run Selenium Cucumber Tests in Docker
-        run: docker run --rm selenium-tests
+# Use a lightweight Java runtime for execution
+FROM eclipse-temurin:17-jdk-slim AS runtime
+WORKDIR /app
+
+# Copy built files from the previous stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Install Chrome and ChromeDriver
+RUN apt-get update && apt-get install -y wget unzip curl \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update && apt-get install -y google-chrome-stable \
+    && wget https://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver \
+    && rm chromedriver_linux64.zip
+
+# Set ChromeDriver Path
+ENV PATH="/usr/local/bin:${PATH}"
+ENV webdriver.chrome.driver="/usr/local/bin/chromedriver"
+
+# Run tests
+CMD ["mvn", "test"]
