@@ -1,26 +1,22 @@
-# Use an official Java runtime as a parent image
-FROM maven:3.8.6-openjdk-17
+name: Run Selenium Cucumber Tests in Docker
 
-# Set the working directory inside the container
-WORKDIR /app
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
 
-# Copy all project files into the container
-COPY . .
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-# Install dependencies
-RUN apt-get update && apt-get install -y wget unzip curl \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update && apt-get install -y google-chrome-stable \
-    && wget https://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip \
-    && unzip chromedriver_linux64.zip \
-    && mv chromedriver /usr/local/bin/ \
-    && chmod +x /usr/local/bin/chromedriver \
-    && rm chromedriver_linux64.zip
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-# Set environment variables for ChromeDriver
-ENV PATH="/usr/local/bin:${PATH}"
-ENV webdriver.chrome.driver="/usr/local/bin/chromedriver"
+      - name: Build Docker Image
+        run: docker build -t selenium-tests .
 
-# Run Maven tests
-CMD ["mvn", "test"]
+      - name: Run Selenium Cucumber Tests in Docker
+        run: docker run --rm selenium-tests
