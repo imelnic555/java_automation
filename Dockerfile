@@ -12,7 +12,7 @@ COPY . .
 
 # Build the project and check if the target/ folder is created
 RUN mvn clean package -DskipTests || (echo "Maven Build Failed!" && exit 1)
-RUN ls -l app/target/ || (echo "Target folder missing!" && exit 1)
+RUN ls -l target/ || (echo "Target folder missing!" && exit 1)
 
 # Stage 2: Run Tests in a Lightweight Java Container
 FROM eclipse-temurin:17-jdk-alpine AS runtime
