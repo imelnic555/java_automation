@@ -1,5 +1,5 @@
 # Stage 1: Build the Java Project
-FROM eclipse-temurin:17-jdk AS builder
+FROM maven:3.8.7-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Run Tests in a Lightweight JDK Container
-FROM eclipse-temurin:17-jdk AS runtime
+FROM maven:3.8.7-eclipse-temurin-17-alpine AS runtime
 
 WORKDIR /app
 
