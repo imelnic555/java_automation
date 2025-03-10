@@ -31,7 +31,7 @@ jobs:
         run: docker build -t selenium-tests .
 
       - name: Run Selenium Cucumber Tests in Docker
-        run: docker run --rm selenium-tests/test-reports:/app/test-reports selenium-tests
+        run: docker run --rm selenium-tests
 
       - name: Generate Allure Report
         run: |
