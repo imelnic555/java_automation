@@ -31,7 +31,7 @@ jobs:
         run: docker build -t selenium-tests .
 
       - name: Run Selenium Cucumber Tests in Docker
-        run: docker run --rm selenium-tests
+        run: docker run --rm selenium-tests/test-reports:/app/test-reports selenium-tests
 
       - name: Generate Allure Report
         run: |
@@ -43,6 +43,11 @@ jobs:
           # npm install -g allure-commandline
           # allure generate allure-results --clean -o allure-report
 
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: test-reports/
          
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
